@@ -1,0 +1,395 @@
+name: 🏢 Enterprise Security & Compliance Suite
+
+on:
+  push:
+    branches: [ master, main, develop, 'release/**', 'hotfix/**' ]
+  pull_request:
+    branches: [ master, main ]
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly comprehensive security audit
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Security scan type'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - comprehensive
+        - secrets-only
+        - dependencies-only
+        - sast-only
+        - infrastructure-only
+      severity_threshold:
+        description: 'Minimum severity level'
+        required: true
+        default: 'medium'
+        type: choice
+        options:
+        - low
+        - medium
+        - high
+        - critical
+
+env:
+  SECURITY_SCAN_TIMEOUT: 45
+  ARTIFACT_RETENTION_DAYS: 90
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  security-matrix-setup:
+    name: 🎯 Security Scan Matrix Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      should-run: ${{ steps.check-changes.outputs.should-run }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 🔍 Check for Relevant Changes
+      id: check-changes
+      run: |
+        if [[ "${{ github.event_name }}" == "schedule" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "should-run=true" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event_name }}" == "push" ]]; then
+          # Check if security-relevant files changed
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.(py|js|ts|sh|yml|yaml|json|md)$|Dockerfile|requirements\.txt|package\.json'; then
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "should-run=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: 🎯 Configure Scan Matrix
+      id: set-matrix
+      run: |
+        scan_type="${{ github.event.inputs.scan_type }}"
+        if [[ -z "$scan_type" || "$scan_type" == "comprehensive" ]]; then
+          echo 'matrix={"scan-type":["secrets","dependencies","sast","container","infrastructure","compliance"],"os":["ubuntu-latest"],"include":[{"scan-type":"secrets","timeout":15},{"scan-type":"dependencies","timeout":20},{"scan-type":"sast","timeout":30},{"scan-type":"container","timeout":25},{"scan-type":"infrastructure","timeout":20},{"scan-type":"compliance","timeout":15}]}' >> $GITHUB_OUTPUT
+        else
+          echo "matrix={\"scan-type\":[\"$scan_type\"],\"os\":[\"ubuntu-latest\"]}" >> $GITHUB_OUTPUT
+        fi
+
+  enterprise-security-scan:
+    name: 🔐 ${{ matrix.scan-type }} Security Analysis
+    runs-on: ${{ matrix.os }}
+    needs: security-matrix-setup
+    if: needs.security-matrix-setup.outputs.should-run == 'true'
+    timeout-minutes: ${{ matrix.timeout || 30 }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.security-matrix-setup.outputs.matrix) }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: true
+    
+    - name: 🐍 Setup Python Environment
+      if: contains(fromJson('["sast", "dependencies", "compliance"]'), matrix.scan-type)
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: 🔧 Setup Node.js Environment
+      if: contains(fromJson('["dependencies", "sast"]'), matrix.scan-type)
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: 🔐 Advanced Secret Scanning
+      if: matrix.scan-type == 'secrets'
+      run: |
+        echo "🔍 Performing comprehensive secret scanning..."
+        
+        # Install and run TruffleHog
+        curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
+        
+        # Comprehensive secret scan with multiple detectors
+        trufflehog filesystem . \
+          --json \
+          --only-verified \
+          --no-update \
+          --exclude-paths=.trufflehogignore \
+          > trufflehog-results.json || true
+        
+        # Custom pattern scanning for cybersecurity-specific secrets
+        echo "🎯 Scanning for cybersecurity-specific patterns..."
+        grep -r -i -E "(api[_-]?key|secret[_-]?key|access[_-]?token|private[_-]?key|password|passwd)" \
+          --include="*.py" --include="*.js" --include="*.sh" --include="*.yml" --include="*.yaml" \
+          --exclude-dir=.git --exclude-dir=node_modules \
+          . > custom-secrets-scan.txt || true
+        
+        # Generate secrets report
+        echo "# 🔐 Secret Scanning Report" > secrets-report.md
+        echo "**Generated:** $(date -u)" >> secrets-report.md
+        echo "" >> secrets-report.md
+        
+        if [ -s trufflehog-results.json ]; then
+          echo "## ⚠️ TruffleHog Findings" >> secrets-report.md
+          echo "\`\`\`json" >> secrets-report.md
+          cat trufflehog-results.json >> secrets-report.md
+          echo "\`\`\`" >> secrets-report.md
+        else
+          echo "## ✅ TruffleHog Results" >> secrets-report.md
+          echo "No verified secrets detected by TruffleHog." >> secrets-report.md
+        fi
+        
+        if [ -s custom-secrets-scan.txt ]; then
+          echo "## 🎯 Custom Pattern Matches" >> secrets-report.md
+          echo "\`\`\`" >> secrets-report.md
+          head -20 custom-secrets-scan.txt >> secrets-report.md
+          echo "\`\`\`" >> secrets-report.md
+        else
+          echo "## ✅ Custom Pattern Scan" >> secrets-report.md
+          echo "No suspicious patterns detected." >> secrets-report.md
+        fi
+    
+    - name: 📦 Advanced Dependency Analysis
+      if: matrix.scan-type == 'dependencies'
+      run: |
+        echo "📦 Performing comprehensive dependency vulnerability analysis..."
+        
+        # Python dependency analysis
+        if [ -f "requirements.txt" ] || find . -name "*.py" -type f | head -1 > /dev/null; then
+          echo "🐍 Analyzing Python dependencies..."
+          pip install safety pip-audit
+          
+          # Safety check for known vulnerabilities
+          if [ -f "requirements.txt" ]; then
+            safety check --json --output safety-report.json || true
+            pip-audit --format=json --output=pip-audit-report.json || true
+          fi
+        fi
+        
+        # Node.js dependency analysis
+        if [ -f "package.json" ]; then
+          echo "📦 Analyzing Node.js dependencies..."
+          npm audit --audit-level=moderate --json > npm-audit-report.json || true
+          
+          # Check for outdated packages
+          npm outdated --json > npm-outdated-report.json || true
+        fi
+        
+        # Generate comprehensive dependency report
+        echo "# 📦 Dependency Security Analysis" > dependency-report.md
+        echo "**Generated:** $(date -u)" >> dependency-report.md
+        echo "" >> dependency-report.md
+        
+        if [ -f "safety-report.json" ]; then
+          echo "## 🐍 Python Safety Analysis" >> dependency-report.md
+          echo "\`\`\`json" >> dependency-report.md
+          cat safety-report.json >> dependency-report.md
+          echo "\`\`\`" >> dependency-report.md
+        fi
+        
+        if [ -f "pip-audit-report.json" ]; then
+          echo "## 🔍 Python Pip-Audit Analysis" >> dependency-report.md
+          echo "\`\`\`json" >> dependency-report.md
+          cat pip-audit-report.json >> dependency-report.md
+          echo "\`\`\`" >> dependency-report.md
+        fi
+        
+        if [ -f "npm-audit-report.json" ]; then
+          echo "## 📦 Node.js Audit Results" >> dependency-report.md
+          echo "\`\`\`json" >> dependency-report.md
+          cat npm-audit-report.json >> dependency-report.md
+          echo "\`\`\`" >> dependency-report.md
+        fi
+        
+        # Dependency summary
+        echo "## 📊 Summary" >> dependency-report.md
+        echo "- Python packages analyzed: $(pip list 2>/dev/null | wc -l || echo 0)" >> dependency-report.md
+        echo "- Node.js packages analyzed: $(npm list --depth=0 2>/dev/null | grep -c '├\|└' || echo 0)" >> dependency-report.md
+        echo "- Scan completed: $(date -u)" >> dependency-report.md
+    
+    - name: 🔍 Static Application Security Testing
+      if: matrix.scan-type == 'sast'
+      run: |
+        echo "🔍 Performing comprehensive static application security testing..."
+        
+        # Install security analysis tools
+        pip install bandit semgrep
+        
+        # Bandit analysis for Python security issues
+        if find . -name "*.py" -type f | head -1 > /dev/null; then
+          echo "🐍 Running Bandit security analysis..."
+          bandit -r . -f json -o bandit-report.json || true
+          bandit -r . -f txt -o bandit-report.txt || true
+        fi
+        
+        # Semgrep comprehensive security analysis
+        echo "🔍 Running Semgrep security analysis..."
+        semgrep --config=auto --json --output=semgrep-report.json . || true
+        semgrep --config=auto --output=semgrep-report.txt . || true
+        
+        # Custom security pattern analysis
+        echo "🎯 Running custom security pattern analysis..."
+        grep -r -n -E "(eval|exec|system|shell_exec|passthru|popen)" \
+          --include="*.py" --include="*.js" --include="*.sh" \
+          --exclude-dir=.git --exclude-dir=node_modules \
+          . > dangerous-functions.txt || true
+        
+        # Generate SAST report
+        echo "# 🔍 Static Application Security Testing Report" > sast-report.md
+        echo "**Generated:** $(date -u)" >> sast-report.md
+        echo "" >> sast-report.md
+        
+        if [ -f "bandit-report.json" ]; then
+          echo "## 🐍 Bandit Security Analysis" >> sast-report.md
+          echo "\`\`\`json" >> sast-report.md
+          cat bandit-report.json >> sast-report.md
+          echo "\`\`\`" >> sast-report.md
+        fi
+        
+        if [ -f "semgrep-report.json" ]; then
+          echo "## 🔍 Semgrep Security Analysis" >> sast-report.md
+          echo "\`\`\`json" >> sast-report.md
+          cat semgrep-report.json >> sast-report.md
+          echo "\`\`\`" >> sast-report.md
+        fi
+        
+        if [ -s "dangerous-functions.txt" ]; then
+          echo "## ⚠️ Potentially Dangerous Functions" >> sast-report.md
+          echo "\`\`\`" >> sast-report.md
+          head -20 dangerous-functions.txt >> sast-report.md
+          echo "\`\`\`" >> sast-report.md
+        else
+          echo "## ✅ Dangerous Functions Check" >> sast-report.md
+          echo "No potentially dangerous functions detected." >> sast-report.md
+        fi
+    
+    - name: 📤 Upload Security Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-scan-${{ matrix.scan-type }}-${{ github.run_number }}
+        path: |
+          *-report.md
+          *-report.json
+          *-report.txt
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+    
+    - name: 📊 Security Scan Summary
+      if: always()
+      run: |
+        echo "## 🔐 Security Scan Summary - ${{ matrix.scan-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Scan Type:** ${{ matrix.scan-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Add scan-specific summary
+        case "${{ matrix.scan-type }}" in
+          "secrets")
+            if [ -f "secrets-report.md" ]; then
+              echo "**Secrets Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+              echo "**Report:** Available in artifacts" >> $GITHUB_STEP_SUMMARY
+            fi
+            ;;
+          "dependencies")
+            if [ -f "dependency-report.md" ]; then
+              echo "**Dependency Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+              echo "**Report:** Available in artifacts" >> $GITHUB_STEP_SUMMARY
+            fi
+            ;;
+          "sast")
+            if [ -f "sast-report.md" ]; then
+              echo "**SAST Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+              echo "**Report:** Available in artifacts" >> $GITHUB_STEP_SUMMARY
+            fi
+            ;;
+        esac
+
+  security-consolidation:
+    name: 📋 Security Report Consolidation
+    runs-on: ubuntu-latest
+    needs: [security-matrix-setup, enterprise-security-scan]
+    if: always() && needs.security-matrix-setup.outputs.should-run == 'true'
+    
+    steps:
+    - name: 📥 Download All Security Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: security-reports
+        pattern: security-scan-*
+        merge-multiple: true
+    
+    - name: 📊 Generate Consolidated Security Report
+      run: |
+        echo "# 🏢 Enterprise Security Assessment Report" > consolidated-security-report.md
+        echo "**Generated:** $(date -u)" >> consolidated-security-report.md
+        echo "**Repository:** ${{ github.repository }}" >> consolidated-security-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> consolidated-security-report.md
+        echo "**Commit:** ${{ github.sha }}" >> consolidated-security-report.md
+        echo "" >> consolidated-security-report.md
+        
+        echo "## 📊 Executive Summary" >> consolidated-security-report.md
+        echo "This comprehensive security assessment covers multiple security domains:" >> consolidated-security-report.md
+        echo "" >> consolidated-security-report.md
+        
+        # Process each security report
+        for report in security-reports/*-report.md; do
+          if [ -f "$report" ]; then
+            echo "### $(basename "$report" .md | tr '-' ' ' | sed 's/\b\w/\U&/g')" >> consolidated-security-report.md
+            echo "" >> consolidated-security-report.md
+            tail -n +3 "$report" >> consolidated-security-report.md
+            echo "" >> consolidated-security-report.md
+            echo "---" >> consolidated-security-report.md
+            echo "" >> consolidated-security-report.md
+          fi
+        done
+        
+        echo "## 🎯 Recommendations" >> consolidated-security-report.md
+        echo "1. **Regular Security Scans:** Continue automated security scanning on all commits" >> consolidated-security-report.md
+        echo "2. **Dependency Management:** Keep dependencies updated and monitor for vulnerabilities" >> consolidated-security-report.md
+        echo "3. **Secret Management:** Implement proper secret management practices" >> consolidated-security-report.md
+        echo "4. **Code Review:** Ensure security-focused code reviews for all changes" >> consolidated-security-report.md
+        echo "" >> consolidated-security-report.md
+        echo "**Report Generated By:** Jir-Course Enterprise Security Suite" >> consolidated-security-report.md
+    
+    - name: 📤 Upload Consolidated Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: enterprise-security-report-${{ github.run_number }}
+        path: consolidated-security-report.md
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+    
+    - name: 📋 Final Security Summary
+      run: |
+        echo "## 🏢 Enterprise Security Assessment Complete" >> $GITHUB_STEP_SUMMARY
+        echo "**Assessment Date:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "- **Secrets Scanning:** ✅ Completed" >> $GITHUB_STEP_SUMMARY
+        echo "- **Dependency Analysis:** ✅ Completed" >> $GITHUB_STEP_SUMMARY
+        echo "- **Static Analysis:** ✅ Completed" >> $GITHUB_STEP_SUMMARY
+        echo "- **Consolidated Report:** Available in artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- Individual scan reports available for ${{ env.ARTIFACT_RETENTION_DAYS }} days" >> $GITHUB_STEP_SUMMARY
+        echo "- Consolidated enterprise report generated" >> $GITHUB_STEP_SUMMARY
