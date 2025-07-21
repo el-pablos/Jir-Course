@@ -1,5 +1,8 @@
 # 🛡️ EDR Bypass Techniques
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 EDR (Endpoint Detection and Response) adalah sistem keamanan yang memantau dan menganalisis aktivitas endpoint untuk mendeteksi ancaman. Modul ini membahas berbagai teknik untuk melewati deteksi EDR dalam konteks penetration testing yang legal.

@@ -1,5 +1,8 @@
 # 📋 Common Commands Cheat Sheet
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 🔍 Reconnaissance Commands
 
 ### Subdomain Enumeration

@@ -1,5 +1,8 @@
 # 🔒 Persistence Techniques
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 Persistence adalah teknik untuk mempertahankan akses pada sistem target setelah mendapatkan akses awal. Tujuannya adalah agar akses tetap tersedia meskipun sistem di-restart atau ada perubahan konfigurasi.

@@ -1,5 +1,8 @@
 # 🔍 Reconnaissance Techniques
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 Reconnaissance adalah tahap pertama dan paling penting dalam penetration testing. Tujuannya adalah mengumpulkan sebanyak mungkin informasi tentang target tanpa terdeteksi. Semakin banyak informasi yang dikumpulkan, semakin besar peluang menemukan celah keamanan.

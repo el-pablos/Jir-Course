@@ -2,7 +2,8 @@
 
 # JavaScript Enumeration Automation Script
 # Untuk Jir-Course - Cybersecurity & Penetration Testing
-# Author: el-pablos
+# Original technical content by Sekiya
+# Authored, summarized, and compiled by Tamas
 
 # Colors
 RED='\033[0;31m'

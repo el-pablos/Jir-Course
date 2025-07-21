@@ -2,6 +2,8 @@
 
 # Gsocket Installation Script
 # Untuk Jir-Course - Cybersecurity & Penetration Testing
+# Original technical content by Sekiya
+# Authored, summarized, and compiled by Tamas
 
 echo "🔧 Gsocket Installation Script"
 echo "================================"

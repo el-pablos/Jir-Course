@@ -1,5 +1,8 @@
 # 🌐 JavaScript Enumeration for Bug Bounty Hunters
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 JavaScript files sering mengandung informasi berharga seperti API keys, hidden endpoints, internal routes, dan secrets lainnya. Modul ini membahas teknik enumerasi JavaScript yang efektif untuk bug bounty hunting.

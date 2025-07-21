@@ -1,5 +1,8 @@
 # 🔍 Google Dorking Collection
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 Google Dorking adalah teknik menggunakan operator pencarian Google untuk menemukan informasi sensitif yang tidak seharusnya dapat diakses publik. Daftar ini berisi berbagai Google dorks yang berguna untuk reconnaissance.

@@ -1,5 +1,24 @@
 # Jir-Course .gitignore
 # Repository untuk Cybersecurity & Penetration Testing Course
+# Authored, summarized, and compiled by Tamas
+# Original technical content by Sekiya
+
+# ===== TEXT FILES EXCLUSION =====
+# Exclude all text files by default for security
+*.txt
+
+# ===== ESSENTIAL DOCUMENTATION EXCEPTIONS =====
+# Allow critical documentation files
+!README.txt
+!CHANGELOG.txt
+!LICENSE.txt
+!CONTRIBUTING.txt
+!INSTALL.txt
+!USAGE.txt
+!CREDITS.txt
+!AUTHORS.txt
+!SECURITY.txt
+!TROUBLESHOOTING.txt
 
 # ===== SECURITY & SENSITIVE FILES =====
 # Jangan commit file yang berisi informasi sensitif

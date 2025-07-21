@@ -1,5 +1,8 @@
 # 🔄 Reverse Shell Techniques
 
+> **Original Technical Content**: Sekiya
+> **Compiled and Summarized by**: Tamas
+
 ## 📋 Overview
 
 Reverse shell adalah teknik dimana target system menginisiasi koneksi kembali ke attacker, memberikan akses command line remote. Modul ini membahas berbagai metode setup reverse shell yang stealth dan reliable.
