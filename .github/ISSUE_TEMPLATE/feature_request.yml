@@ -1,0 +1,200 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or enhancement for the academy
+title: "[FEATURE] "
+labels: ["enhancement", "needs-review"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🚀 Feature Request
+        
+        Help us improve the Jir-Course Academy by suggesting new features, modules, or enhancements!
+        
+        **🎯 Focus Areas**: Educational content, automation tools, security techniques, learning resources
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 🎯 Feature Category
+      description: What type of feature are you requesting?
+      options:
+        - 📚 New Educational Module
+        - 🔧 Automation Tool/Script
+        - 🛡️ Security Technique
+        - 📖 Documentation Enhancement
+        - 🎨 UI/UX Improvement
+        - 🤖 CI/CD Enhancement
+        - 🌐 Community Feature
+        - 📱 Platform Support
+        - 🔗 Integration
+        - 📊 Analytics/Reporting
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: ⚡ Priority Level
+      description: How important is this feature?
+      options:
+        - 🔥 Critical - Essential for academy functionality
+        - ⚡ High - Significantly improves learning experience
+        - 📊 Medium - Nice to have enhancement
+        - 💡 Low - Minor improvement or convenience
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🎯 Problem Statement
+      description: What problem does this feature solve?
+      placeholder: |
+        Example: Currently, there's no automated way to validate that all required penetration testing tools are installed and properly configured in the lab environment. Students often struggle with tool setup, which delays their learning progress.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        Example: Create an automated lab setup script that:
+        1. Checks system compatibility
+        2. Installs all required tools (nmap, burp, metasploit, etc.)
+        3. Configures proper permissions and paths
+        4. Validates installation with test commands
+        5. Generates a setup report with any issues
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 📋 Target Module/Area
+      description: Which module or area would this feature affect?
+      options:
+        - 01-EDR-Bypass
+        - 02-Reverse-Shell
+        - 03-Persistence
+        - 04-JavaScript-Enumeration
+        - 05-Shell-Defense
+        - 06-Reconnaissance
+        - 07-Vulnerability-Analysis
+        - 08-Exploitation
+        - 09-Post-Exploitation
+        - 10-Automation-Tools
+        - Resources
+        - Repository Infrastructure
+        - Community Features
+        - Cross-Module Enhancement
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: 🏆 Expected Benefits
+      description: What benefits would this feature provide?
+      placeholder: |
+        - Reduces setup time from hours to minutes
+        - Eliminates common configuration errors
+        - Provides consistent lab environment across different systems
+        - Improves student success rate and satisfaction
+        - Enables instructors to focus on teaching rather than troubleshooting
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 🔧 Implementation Ideas
+      description: Do you have ideas about how this could be implemented?
+      placeholder: |
+        Technical approach, tools to use, architecture considerations, etc.
+        
+        Example:
+        - Bash script with modular functions for each tool
+        - Python wrapper for cross-platform compatibility
+        - Docker containers for isolated environments
+        - Integration with existing CI/CD pipeline
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternative Solutions
+      description: Have you considered alternative approaches?
+      placeholder: |
+        What other solutions have you considered? Why is your proposed solution better?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: 🎚️ Implementation Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - 🟢 Simple - Can be implemented quickly with minimal changes
+        - 🟡 Moderate - Requires some development effort and testing
+        - 🟠 Complex - Significant development work and coordination needed
+        - 🔴 Very Complex - Major architectural changes or extensive research required
+        - 🤔 Unknown - Need more investigation to determine complexity
+    validations:
+      required: true
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: 📚 Additional Resources
+      description: Any relevant links, references, or examples?
+      placeholder: |
+        - Similar implementations in other projects
+        - Research papers or articles
+        - Tool documentation
+        - Community discussions
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🤝 Contribution Willingness
+      description: Are you willing to help implement this feature?
+      options:
+        - label: I can help with research and planning
+        - label: I can contribute to the implementation
+        - label: I can help with testing and validation
+        - label: I can assist with documentation
+        - label: I can provide ongoing maintenance support
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: This feature aligns with the academy's educational mission
+          required: true
+        - label: I have provided sufficient detail for evaluation
+          required: true
+        - label: This feature promotes ethical hacking and responsible disclosure
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        **🎓 Thank you for helping improve the Jir-Course Academy!**
+        
+        Your feature suggestions help us build a better learning platform for the cybersecurity community.
+        
+        **Attribution**: Original technical content by Sekiya, compiled and summarized by Tamas.

@@ -1,0 +1,166 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the academy content
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🐛 Bug Report
+        
+        Thank you for helping improve the Jir-Course Academy! Please provide detailed information about the bug you encountered.
+        
+        **⚠️ Security Notice**: Do not include any sensitive information, credentials, or real target details in this report.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 🎯 Bug Category
+      description: What type of bug are you reporting?
+      options:
+        - 📚 Documentation Error
+        - 🔧 Script/Tool Malfunction
+        - 🔗 Broken Link
+        - 🎨 UI/Formatting Issue
+        - 🛡️ Security Concern
+        - 🤖 Automation Failure
+        - 📱 Compatibility Issue
+        - 🎓 Educational Content Error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 📋 Affected Module
+      description: Which academy module is affected?
+      options:
+        - 01-EDR-Bypass
+        - 02-Reverse-Shell
+        - 03-Persistence
+        - 04-JavaScript-Enumeration
+        - 05-Shell-Defense
+        - 06-Reconnaissance
+        - 07-Vulnerability-Analysis
+        - 08-Exploitation
+        - 09-Post-Exploitation
+        - 10-Automation-Tools
+        - Resources
+        - Repository Root
+        - Multiple Modules
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 🔍 Bug Description
+      description: Provide a clear and concise description of the bug
+      placeholder: |
+        Example: The gsocket installation script fails on Ubuntu 22.04 with permission denied error when trying to create directories in /usr/local/bin
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Provide step-by-step instructions to reproduce the bug
+      placeholder: |
+        1. Navigate to 02-Reverse-Shell/gsocket/
+        2. Run ./install-gsocket.sh
+        3. Script fails at line 45 with permission error
+        4. Error message appears: "Permission denied: cannot create directory"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ✅ Expected Behavior
+      description: What should happen instead?
+      placeholder: |
+        The script should successfully install gsocket and create necessary directories with proper permissions
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened?
+      placeholder: |
+        Script terminates with exit code 1 and displays permission denied error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 🖥️ Environment
+      description: What environment are you using?
+      options:
+        - Kali Linux
+        - Ubuntu 20.04
+        - Ubuntu 22.04
+        - Debian 11
+        - Debian 12
+        - CentOS/RHEL 8
+        - CentOS/RHEL 9
+        - Arch Linux
+        - macOS
+        - Windows (WSL)
+        - Docker Container
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📋 Error Logs/Output
+      description: Include relevant error messages, logs, or command output
+      placeholder: |
+        Paste error messages, stack traces, or command output here.
+        Use code blocks (```) for better formatting.
+      render: shell
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 📝 Additional Context
+      description: Add any other context, screenshots, or relevant information
+      placeholder: |
+        - System specifications
+        - Previous working versions
+        - Related issues
+        - Workarounds attempted
+        - Screenshots (if applicable)
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have provided sufficient detail for reproduction
+          required: true
+        - label: I have removed any sensitive information from this report
+          required: true
+        - label: I am using this for educational/authorized testing purposes only
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        **🙏 Thank you for contributing to the Jir-Course Academy!**
+        
+        Your bug report helps improve the learning experience for the entire cybersecurity community.
+        
+        **Attribution**: Original technical content by Sekiya, compiled and summarized by Tamas.

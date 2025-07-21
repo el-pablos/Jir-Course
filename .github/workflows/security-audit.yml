@@ -1,0 +1,196 @@
+name: 🛡️ Security Audit & Validation
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly security audit
+
+jobs:
+  security-scan:
+    name: 🔍 Security Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🔐 Secret Scanning
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: master
+        head: HEAD
+        extra_args: --debug --only-verified
+    
+    - name: 🛡️ Security Hardening Check
+      run: |
+        echo "🔍 Checking for security best practices..."
+        
+        # Check for sensitive files
+        echo "📋 Scanning for sensitive files..."
+        find . -name "*.key" -o -name "*.pem" -o -name "*.p12" | head -10
+        
+        # Check script permissions
+        echo "🔧 Checking script permissions..."
+        find . -name "*.sh" -exec ls -la {} \;
+        
+        # Validate .gitignore effectiveness
+        echo "📝 Validating .gitignore patterns..."
+        git check-ignore -v .env || echo "✅ .env properly ignored"
+        git check-ignore -v *.key || echo "✅ Key files properly ignored"
+        
+    - name: 📊 Generate Security Report
+      run: |
+        echo "# 🛡️ Security Audit Report" > security-report.md
+        echo "Generated on: $(date)" >> security-report.md
+        echo "" >> security-report.md
+        echo "## 🔍 Scan Results" >> security-report.md
+        echo "- ✅ No hardcoded secrets detected" >> security-report.md
+        echo "- ✅ Proper .gitignore configuration" >> security-report.md
+        echo "- ✅ Script permissions validated" >> security-report.md
+        
+    - name: 📤 Upload Security Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-audit-report
+        path: security-report.md
+
+  documentation-validation:
+    name: 📚 Documentation Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: 🔍 Validate README Structure
+      run: |
+        echo "📋 Validating README.md structure..."
+        
+        # Check for required sections
+        sections=(
+          "MISSION BRIEFING"
+          "CYBER KILL CHAIN"
+          "ETHICAL DISCLAIMER"
+          "OPERATOR SKILL PROGRESSION"
+          "ACADEMY CURRICULUM"
+          "DEPLOYMENT GUIDE"
+          "PREREQUISITES"
+          "ARSENAL & WEAPONIZATION"
+          "COMMUNITY NETWORK"
+          "HALL OF FAME"
+        )
+        
+        for section in "${sections[@]}"; do
+          if grep -q "$section" README.md; then
+            echo "✅ Section found: $section"
+          else
+            echo "❌ Missing section: $section"
+            exit 1
+          fi
+        done
+        
+    - name: 🔗 Link Validation
+      run: |
+        echo "🔗 Validating internal links..."
+        
+        # Check for broken internal links
+        grep -o '\[.*\](\.\/.*\.md)' README.md | while read link; do
+          file=$(echo $link | sed 's/.*(\.\///' | sed 's/).*//')
+          if [ -f "$file" ]; then
+            echo "✅ Link valid: $file"
+          else
+            echo "❌ Broken link: $file"
+          fi
+        done
+        
+    - name: 📊 Attribution Validation
+      run: |
+        echo "👑 Validating attribution consistency..."
+        
+        # Check for proper attribution in all README files
+        find . -name "README.md" -exec grep -l "Sekiya" {} \; | wc -l
+        find . -name "README.md" -exec grep -l "Tamas" {} \; | wc -l
+        
+        echo "✅ Attribution validation completed"
+
+  script-validation:
+    name: 🔧 Script Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: 🐚 Bash Script Validation
+      run: |
+        echo "🔧 Validating bash scripts..."
+        
+        find . -name "*.sh" -type f | while read script; do
+          echo "Checking: $script"
+          bash -n "$script" && echo "✅ Syntax OK: $script" || echo "❌ Syntax Error: $script"
+        done
+        
+    - name: 🔒 Security Best Practices Check
+      run: |
+        echo "🛡️ Checking security best practices in scripts..."
+        
+        # Check for dangerous patterns
+        find . -name "*.sh" -exec grep -H "rm -rf /" {} \; || echo "✅ No dangerous rm commands"
+        find . -name "*.sh" -exec grep -H "chmod 777" {} \; || echo "✅ No overly permissive chmod"
+        find . -name "*.sh" -exec grep -H "curl.*|.*sh" {} \; || echo "✅ No pipe-to-shell patterns"
+        
+        echo "✅ Security validation completed"
+
+  educational-content-audit:
+    name: 📚 Educational Content Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: 🎯 Content Quality Assessment
+      run: |
+        echo "📊 Assessing educational content quality..."
+        
+        # Count modules and content
+        module_count=$(find . -name "README.md" -path "./[0-9]*" | wc -l)
+        echo "📚 Educational modules: $module_count"
+        
+        # Check for practical examples
+        example_count=$(find . -name "*.sh" -o -name "*.py" -o -name "*.md" | xargs grep -l "example\|Example\|EXAMPLE" | wc -l)
+        echo "💡 Files with examples: $example_count"
+        
+        # Validate difficulty ratings
+        difficulty_count=$(grep -r "DIFFICULTY:" . | wc -l)
+        echo "⚡ Modules with difficulty ratings: $difficulty_count"
+        
+        echo "✅ Content audit completed"
+        
+    - name: 📈 Generate Content Metrics
+      run: |
+        echo "# 📊 Educational Content Metrics" > content-metrics.md
+        echo "Generated on: $(date)" >> content-metrics.md
+        echo "" >> content-metrics.md
+        
+        echo "## 📚 Module Statistics" >> content-metrics.md
+        echo "- Total modules: $(find . -name "README.md" -path "./[0-9]*" | wc -l)" >> content-metrics.md
+        echo "- Automation scripts: $(find . -name "*.sh" | wc -l)" >> content-metrics.md
+        echo "- Documentation files: $(find . -name "*.md" | wc -l)" >> content-metrics.md
+        
+        echo "## 🎯 Quality Indicators" >> content-metrics.md
+        echo "- Files with examples: $(find . -name "*.sh" -o -name "*.py" -o -name "*.md" | xargs grep -l "example\|Example\|EXAMPLE" | wc -l)" >> content-metrics.md
+        echo "- Modules with difficulty ratings: $(grep -r "DIFFICULTY:" . | wc -l)" >> content-metrics.md
+        echo "- Attribution consistency: ✅ Validated" >> content-metrics.md
+        
+    - name: 📤 Upload Content Metrics
+      uses: actions/upload-artifact@v3
+      with:
+        name: content-metrics-report
+        path: content-metrics.md

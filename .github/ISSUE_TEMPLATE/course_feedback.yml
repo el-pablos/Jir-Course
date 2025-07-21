@@ -1,0 +1,228 @@
+name: 🎓 Course Feedback
+description: Provide feedback on educational content and learning experience
+title: "[FEEDBACK] "
+labels: ["feedback", "education"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🎓 Course Feedback
+        
+        Your feedback is invaluable for improving the Jir-Course Academy learning experience!
+        
+        **🎯 Help us understand**: What's working well? What could be improved? What's missing?
+
+  - type: dropdown
+    id: feedback_type
+    attributes:
+      label: 📋 Feedback Type
+      description: What type of feedback are you providing?
+      options:
+        - 🎯 Module Content Quality
+        - 📚 Learning Path Effectiveness
+        - 🔧 Tool/Script Usability
+        - 📖 Documentation Clarity
+        - 🎨 Presentation/Formatting
+        - 🏆 Difficulty Level Assessment
+        - 🌟 Overall Experience
+        - 💡 Suggestion for Improvement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: experience_level
+    attributes:
+      label: 🎚️ Your Experience Level
+      description: What's your current cybersecurity experience level?
+      options:
+        - 🐣 Complete Beginner (New to cybersecurity)
+        - 🔰 Novice (Some basic knowledge)
+        - ⚡ Intermediate (Some practical experience)
+        - 🔥 Advanced (Experienced practitioner)
+        - 💀 Expert (Professional/Instructor level)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module_focus
+    attributes:
+      label: 📚 Module Focus
+      description: Which module(s) is this feedback about?
+      options:
+        - 01-EDR-Bypass
+        - 02-Reverse-Shell
+        - 03-Persistence
+        - 04-JavaScript-Enumeration
+        - 05-Shell-Defense
+        - 06-Reconnaissance
+        - 07-Vulnerability-Analysis
+        - 08-Exploitation
+        - 09-Post-Exploitation
+        - 10-Automation-Tools
+        - Resources Section
+        - Overall Academy Structure
+        - Multiple Modules
+    validations:
+      required: true
+
+  - type: textarea
+    id: positive_feedback
+    attributes:
+      label: 🌟 What's Working Well
+      description: What aspects of the academy do you find most valuable?
+      placeholder: |
+        Example: The EDR bypass module provides excellent real-world techniques that I've successfully applied in authorized penetration tests. The step-by-step explanations and practical examples make complex concepts accessible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement_areas
+    attributes:
+      label: 🔧 Areas for Improvement
+      description: What could be improved or enhanced?
+      placeholder: |
+        Example: The JavaScript enumeration section could benefit from more examples of analyzing modern React applications. Also, some automation scripts need better error handling for edge cases.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: difficulty_rating
+    attributes:
+      label: 📊 Difficulty Rating
+      description: How would you rate the overall difficulty level?
+      options:
+        - 🟢 Too Easy - Needs more advanced content
+        - 🟡 Just Right - Perfect balance
+        - 🟠 Challenging but Manageable - Good learning curve
+        - 🔴 Too Difficult - Needs more foundational content
+        - 🤔 Mixed - Some modules easy, others too hard
+    validations:
+      required: true
+
+  - type: dropdown
+    id: learning_effectiveness
+    attributes:
+      label: 🎯 Learning Effectiveness
+      description: How effective is the academy for skill development?
+      options:
+        - 🔥 Excellent - Significantly improved my skills
+        - ⚡ Very Good - Learned valuable new techniques
+        - 📊 Good - Solid educational value
+        - 💡 Fair - Some useful content
+        - 🤔 Needs Improvement - Limited learning value
+    validations:
+      required: true
+
+  - type: textarea
+    id: practical_application
+    attributes:
+      label: 🛡️ Practical Application
+      description: Have you been able to apply what you learned in real scenarios?
+      placeholder: |
+        Share your experience applying academy techniques in:
+        - Authorized penetration tests
+        - Bug bounty hunting
+        - Defensive security improvements
+        - Lab environments
+        - Professional work
+        
+        (Please only share experiences from authorized/legal activities)
+    validations:
+      required: false
+
+  - type: textarea
+    id: missing_content
+    attributes:
+      label: 📚 Missing Content/Topics
+      description: What topics or techniques would you like to see added?
+      placeholder: |
+        Example: 
+        - Advanced Active Directory exploitation techniques
+        - Cloud security assessment methodologies
+        - Mobile application penetration testing
+        - IoT device security analysis
+        - Advanced social engineering techniques
+    validations:
+      required: false
+
+  - type: dropdown
+    id: recommendation
+    attributes:
+      label: 🌟 Recommendation Likelihood
+      description: How likely are you to recommend this academy to others?
+      options:
+        - 🔥 Extremely Likely (10/10)
+        - ⚡ Very Likely (8-9/10)
+        - 📊 Likely (6-7/10)
+        - 💡 Neutral (5/10)
+        - 🤔 Unlikely (3-4/10)
+        - ❌ Very Unlikely (1-2/10)
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_stories
+    attributes:
+      label: 🏆 Success Stories
+      description: Any success stories or achievements using academy knowledge?
+      placeholder: |
+        Example: Used the reconnaissance techniques to identify a critical vulnerability in a client's infrastructure during an authorized pentest, leading to improved security posture and a successful engagement.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_feedback
+    attributes:
+      label: 💭 Additional Comments
+      description: Any other feedback, suggestions, or thoughts?
+      placeholder: |
+        Share any additional thoughts about:
+        - Community aspects
+        - Documentation quality
+        - Tool effectiveness
+        - Learning path structure
+        - Future directions
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: usage_context
+    attributes:
+      label: 🎯 Usage Context
+      description: How are you using the academy? (Select all that apply)
+      options:
+        - label: Self-directed learning and skill development
+        - label: Professional penetration testing work
+        - label: Bug bounty hunting activities
+        - label: Academic research and education
+        - label: Teaching others cybersecurity concepts
+        - label: Improving defensive security posture
+        - label: Preparing for cybersecurity certifications
+
+  - type: checkboxes
+    id: ethical_commitment
+    attributes:
+      label: ✅ Ethical Commitment
+      description: Please confirm your commitment to ethical practices
+      options:
+        - label: I use academy knowledge only for authorized/legal activities
+          required: true
+        - label: I follow responsible disclosure practices
+          required: true
+        - label: I respect privacy and data protection laws
+          required: true
+        - label: I promote ethical hacking in the community
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        **🙏 Thank you for your valuable feedback!**
+        
+        Your insights help us continuously improve the Jir-Course Academy and serve the cybersecurity community better.
+        
+        **Attribution**: Original technical content by Sekiya, compiled and summarized by Tamas.

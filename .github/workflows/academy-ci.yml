@@ -1,0 +1,253 @@
+name: 🎓 Academy CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  ACADEMY_VERSION: "v2.0.0"
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+
+jobs:
+  build-and-test:
+    name: 🏗️ Build & Test Academy
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        
+    steps:
+    - name: 📥 Checkout Academy Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: 🐍 Setup Python Environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📦 Setup Node.js Environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: 🔧 Install System Dependencies
+      run: |
+        echo "🔧 Installing system dependencies..."
+        sudo apt-get update
+        sudo apt-get install -y curl wget git jq
+        
+        # Install Go for security tools
+        wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz
+        sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz
+        echo 'export PATH=$PATH:/usr/local/go/bin' >> $GITHUB_ENV
+        
+    - name: 🛠️ Install Academy Tools
+      run: |
+        echo "🛠️ Installing cybersecurity tools..."
+        
+        # Install common penetration testing tools
+        pip install requests beautifulsoup4 colorama
+        
+        # Install Go-based security tools (simulated)
+        echo "Installing subfinder, httpx, nuclei..."
+        # go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+        # go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+        # go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+        
+    - name: 🧪 Test Academy Scripts
+      run: |
+        echo "🧪 Testing academy automation scripts..."
+        
+        # Test bash scripts syntax
+        find . -name "*.sh" -type f | while read script; do
+          echo "Testing: $script"
+          bash -n "$script" || exit 1
+        done
+        
+        # Test Python scripts (if any)
+        find . -name "*.py" -type f | while read script; do
+          echo "Testing: $script"
+          python -m py_compile "$script" || exit 1
+        done
+        
+    - name: 📊 Generate Test Report
+      run: |
+        echo "# 🧪 Academy Test Report" > test-report-${{ matrix.os }}.md
+        echo "Platform: ${{ matrix.os }}" >> test-report-${{ matrix.os }}.md
+        echo "Generated on: $(date)" >> test-report-${{ matrix.os }}.md
+        echo "" >> test-report-${{ matrix.os }}.md
+        
+        echo "## 🔧 Script Validation" >> test-report-${{ matrix.os }}.md
+        script_count=$(find . -name "*.sh" | wc -l)
+        echo "- Bash scripts tested: $script_count" >> test-report-${{ matrix.os }}.md
+        echo "- All scripts passed syntax validation ✅" >> test-report-${{ matrix.os }}.md
+        
+        echo "## 🐍 Python Validation" >> test-report-${{ matrix.os }}.md
+        python_count=$(find . -name "*.py" | wc -l)
+        echo "- Python scripts tested: $python_count" >> test-report-${{ matrix.os }}.md
+        echo "- All scripts compiled successfully ✅" >> test-report-${{ matrix.os }}.md
+        
+    - name: 📤 Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-report-${{ matrix.os }}
+        path: test-report-${{ matrix.os }}.md
+
+  documentation-build:
+    name: 📚 Documentation Build
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 📖 Build Documentation
+      run: |
+        echo "📖 Building comprehensive documentation..."
+        
+        # Create documentation structure
+        mkdir -p docs/{modules,tools,guides,api}
+        
+        # Generate module documentation
+        for module in $(find . -maxdepth 1 -name "[0-9]*" -type d | sort); do
+          module_name=$(basename "$module")
+          echo "📋 Processing module: $module_name"
+          
+          if [ -f "$module/README.md" ]; then
+            cp "$module/README.md" "docs/modules/$module_name.md"
+          fi
+        done
+        
+        # Generate tools documentation
+        find . -name "*.sh" -type f | while read script; do
+          script_name=$(basename "$script" .sh)
+          echo "🔧 Documenting script: $script_name"
+          
+          echo "# $script_name" > "docs/tools/$script_name.md"
+          echo "" >> "docs/tools/$script_name.md"
+          echo "## Description" >> "docs/tools/$script_name.md"
+          head -10 "$script" | grep "^#" | sed 's/^# //' >> "docs/tools/$script_name.md"
+        done
+        
+    - name: 📊 Generate Documentation Index
+      run: |
+        echo "# 🎓 Jir-Course Academy Documentation" > docs/index.md
+        echo "" >> docs/index.md
+        echo "## 📚 Educational Modules" >> docs/index.md
+        
+        for doc in docs/modules/*.md; do
+          if [ -f "$doc" ]; then
+            module_name=$(basename "$doc" .md)
+            echo "- [$module_name]($doc)" >> docs/index.md
+          fi
+        done
+        
+        echo "" >> docs/index.md
+        echo "## 🛠️ Automation Tools" >> docs/index.md
+        
+        for doc in docs/tools/*.md; do
+          if [ -f "$doc" ]; then
+            tool_name=$(basename "$doc" .md)
+            echo "- [$tool_name]($doc)" >> docs/index.md
+          fi
+        done
+        
+    - name: 📤 Upload Documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: academy-documentation
+        path: docs/
+
+  security-compliance:
+    name: 🛡️ Security Compliance Check
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔍 SAST Security Scanning
+      uses: github/super-linter@v4
+      env:
+        DEFAULT_BRANCH: master
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_BASH: true
+        VALIDATE_MARKDOWN: true
+        VALIDATE_YAML: true
+        
+    - name: 🛡️ Educational Content Compliance
+      run: |
+        echo "🛡️ Checking educational content compliance..."
+        
+        # Verify ethical disclaimers
+        disclaimer_count=$(grep -r "ETHICAL DISCLAIMER\|ethical\|responsible" . | wc -l)
+        echo "📋 Ethical disclaimers found: $disclaimer_count"
+        
+        if [ $disclaimer_count -lt 5 ]; then
+          echo "❌ Insufficient ethical disclaimers"
+          exit 1
+        fi
+        
+        # Check for proper attribution
+        sekiya_count=$(grep -r "Sekiya" . | wc -l)
+        tamas_count=$(grep -r "Tamas" . | wc -l)
+        
+        echo "👑 Sekiya attributions: $sekiya_count"
+        echo "🏗️ Tamas attributions: $tamas_count"
+        
+        if [ $sekiya_count -lt 5 ] || [ $tamas_count -lt 5 ]; then
+          echo "❌ Insufficient attribution"
+          exit 1
+        fi
+        
+        echo "✅ Compliance check passed"
+
+  release-preparation:
+    name: 🚀 Release Preparation
+    runs-on: ubuntu-latest
+    needs: [build-and-test, documentation-build, security-compliance]
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: 📋 Generate Release Notes
+      run: |
+        echo "# 🎓 Jir-Course Academy Release ${{ env.ACADEMY_VERSION }}" > RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🔥 What's New" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        
+        # Get recent commits
+        git log --oneline --since="1 week ago" >> RELEASE_NOTES.md
+        
+        echo "" >> RELEASE_NOTES.md
+        echo "## 📊 Academy Statistics" >> RELEASE_NOTES.md
+        echo "- Educational modules: $(find . -name "README.md" -path "./[0-9]*" | wc -l)" >> RELEASE_NOTES.md
+        echo "- Automation scripts: $(find . -name "*.sh" | wc -l)" >> RELEASE_NOTES.md
+        echo "- Documentation files: $(find . -name "*.md" | wc -l)" >> RELEASE_NOTES.md
+        
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🛡️ Security & Compliance" >> RELEASE_NOTES.md
+        echo "- ✅ All security scans passed" >> RELEASE_NOTES.md
+        echo "- ✅ Educational content compliance verified" >> RELEASE_NOTES.md
+        echo "- ✅ Attribution consistency maintained" >> RELEASE_NOTES.md
+        
+    - name: 📤 Upload Release Assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-assets
+        path: |
+          RELEASE_NOTES.md
+          README.md
