@@ -1,0 +1,244 @@
+# Jir-Course .gitignore
+# Repository untuk Cybersecurity & Penetration Testing Course
+
+# ===== SECURITY & SENSITIVE FILES =====
+# Jangan commit file yang berisi informasi sensitif
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+known_hosts
+authorized_keys
+.ssh/
+config.ini
+config.conf
+secrets.txt
+passwords.txt
+credentials.txt
+tokens.txt
+api_keys.txt
+
+# ===== COMPILED BINARIES & EXECUTABLES =====
+# Binary files yang mungkin berbahaya atau tidak perlu
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.out
+*.app
+*.deb
+*.rpm
+*.msi
+*.dmg
+*.pkg
+*.apk
+*.ipa
+
+# ===== LOGS & TEMPORARY FILES =====
+# File log dan temporary
+*.log
+*.tmp
+*.temp
+*.cache
+*.pid
+*.lock
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== PYTHON =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ===== NODE.JS =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===== JAVA =====
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# ===== C/C++ =====
+*.o
+*.a
+*.lib
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# ===== GO =====
+*.exe~
+*.test
+*.prof
+vendor/
+
+# ===== RUBY =====
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+.byebug_history
+.rspec
+
+# ===== DATABASE FILES =====
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+*.sl3
+
+# ===== ARCHIVES & COMPRESSED FILES =====
+# File archive yang mungkin berisi malware
+*.7z
+*.bz2
+*.gz
+*.lz
+*.lzma
+*.rar
+*.tar
+*.xz
+*.Z
+*.zip
+
+# ===== VIRTUAL MACHINES & CONTAINERS =====
+*.vmdk
+*.vdi
+*.vhd
+*.vhdx
+*.ova
+*.ovf
+Vagrantfile.local
+.vagrant/
+
+# ===== IDE & EDITOR FILES =====
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.atom/
+.brackets.json
+*.code-workspace
+
+# ===== BACKUP FILES =====
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*~
+
+# ===== SYSTEM FILES =====
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===== CUSTOM EXCLUSIONS =====
+# File khusus untuk course ini
+/private/
+/personal/
+/real-targets/
+/actual-exploits/
+/live-shells/
+/production-configs/
+
+# ===== WORDLISTS & LARGE FILES =====
+# Wordlist besar yang tidak perlu di-commit
+rockyou.txt
+SecLists/
+wordlists/large/
+*.txt.gz
+big-wordlist.txt
+
+# ===== TOOLS & BINARIES =====
+# Tools yang di-download
+tools/downloaded/
+binaries/
+exploits/compiled/
+payloads/compiled/
+
+# ===== RESULTS & OUTPUTS =====
+# Hasil scan dan output
+results/
+output/
+scans/
+reports/
+screenshots/
+*.pcap
+*.pcapng
+
+# ===== CONFIGURATION FILES =====
+# Config files yang mungkin berisi info sensitif
+nmap.conf
+burp-config.json
+metasploit.rc
+.msf4/
+.armitage/
